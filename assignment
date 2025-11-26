@@ -1,0 +1,192 @@
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
+#include <iomanip>
+#include <string>
+#include <chrono>
+
+using namespace std;
+
+// FORMAT ID TO PTxxxxxxx
+string formatID(int num) {
+    string s = to_string(num);
+    while (s.length() < 7)
+        s = "0" + s;
+    return "PT" + s;
+}
+
+// MERGE
+void merge(int arr[], int radiology, int mid, int pharmacy) {
+    int o1 = mid - radiology + 1;
+    int o2 = pharmacy - mid;
+
+    int m[o1], a[o2];
+
+    for (int i = 0; i < o1; i++)
+        m[i] = arr[radiology + i];
+
+    for (int j = 0; j < o2; j++)
+        a[j] = arr[mid + 1 + j];
+
+    int i = 0, j = 0, k = radiology;
+
+    while (i < o1 && j < o2) {
+        if (m[i] <= a[j]) {
+            arr[k] = m[i];
+            i++;
+        } else {
+            arr[k] = a[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < o1) {
+        arr[k] = m[i];
+        i++;
+        k++;
+    }
+
+    while (j < o2) {
+        arr[k] = a[j];
+        j++;
+        k++;
+    }
+}
+
+// MERGESORT
+void mergesort(int arr[], int radiology, int pharmacy) {
+    if (radiology >= pharmacy)
+        return;
+
+    int mid = radiology + (pharmacy - radiology) / 2;
+
+    mergesort(arr, radiology, mid);
+    mergesort(arr, mid + 1, pharmacy);
+    merge(arr, radiology, mid, pharmacy);
+}
+
+// MERGE TWO DEPARTMENTS (R + P)
+int mergeDepartments(int radiologyArr[], int r1,
+                     int pharmacyArr[], int r2,
+                     int master[]) {
+
+    int i = 0, j = 0, k = 0;
+
+    while (i < r1 && j < r2) {
+        if (radiologyArr[i] < pharmacyArr[j]) {
+            master[k++] = radiologyArr[i++];
+        } else if (pharmacyArr[j] < radiologyArr[i]) {
+            master[k++] = pharmacyArr[j++];
+        } else {
+            master[k++] = radiologyArr[i];
+            i++; j++;
+        }
+    }
+
+    while (i < r1)
+        master[k++] = radiologyArr[i++];
+    while (j < r2)
+        master[k++] = pharmacyArr[j++];
+
+    return k;
+}
+
+int main() {
+
+    int r1, r2;
+
+    cout << "Enter number of Radiology patient IDs: ";
+    cin >> r1;
+
+    cout << "Enter number of Pharmacy patient IDs: ";
+    cin >> r2;
+
+    int radiology[r1];
+    int pharmacy[r2];
+
+    srand(time(0));
+
+    for (int i = 0; i < r1; i++)
+        radiology[i] = rand() % 10000000;
+
+    for (int i = 0; i < r2; i++)
+        pharmacy[i] = rand() % 10000000;
+
+    int option;
+    static int merged[2000000];
+    static int mergedSize = 0;
+
+    do {
+        cout << "\n===== MENU =====\n";
+        cout << "1. Display unsorted Radiology IDs\n";
+        cout << "2. Display unsorted Pharmacy IDs\n";
+        cout << "3. Sort both departments and display sorted lists + timing\n";
+        cout << "4. Merge both sorted lists (remove duplicates)\n";
+        cout << "5. Display merged master list\n";
+        cout << "0. Exit\n";
+        cout << "Choose option: ";
+        cin >> option;
+
+        if (option == 1) {
+            cout << "\nUnsorted Radiology IDs:\n";
+            for (int i = 0; i < r1; i++)
+                cout << formatID(radiology[i]) << endl;
+        }
+
+        if (option == 2) {
+            cout << "\nUnsorted Pharmacy IDs:\n";
+            for (int i = 0; i < r2; i++)
+                cout << formatID(pharmacy[i]) << endl;
+        }
+
+        if (option == 3) {
+
+            cout << "\nSorting Radiology...\n";
+            auto start1 = chrono::high_resolution_clock::now();
+            mergesort(radiology, 0, r1 - 1);
+            auto end1 = chrono::high_resolution_clock::now();
+            long long time1 =
+                chrono::duration_cast<chrono::nanoseconds>(end1 - start1).count();
+
+            cout << "Radiology sorted in " << time1 << " nanoseconds.\n";
+
+            cout << "\nSorting Pharmacy...\n";
+            auto start2 = chrono::high_resolution_clock::now();
+            mergesort(pharmacy, 0, r2 - 1);
+            auto end2 = chrono::high_resolution_clock::now();
+            long long time2 =
+                chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count();
+
+            cout << "Pharmacy sorted in " << time2 << " nanoseconds.\n";
+
+            cout << "\nSorted Radiology IDs:\n";
+            for (int i = 0; i < r1; i++)
+                cout << formatID(radiology[i]) << endl;
+
+            cout << "\nSorted Pharmacy IDs:\n";
+            for (int i = 0; i < r2; i++)
+                cout << formatID(pharmacy[i]) << endl;
+        }
+
+        if (option == 4) {
+            cout << "\nMerging both departments...\n";
+            auto start3 = chrono::high_resolution_clock::now();
+            mergedSize = mergeDepartments(radiology, r1, pharmacy, r2, merged);
+            auto end3 = chrono::high_resolution_clock::now();
+            long long t3 =
+                chrono::duration_cast<chrono::nanoseconds>(end3 - start3).count();
+
+            cout << "Merged master list created in " << t3 << " nanoseconds.\n";
+        }
+
+        if (option == 5) {
+            cout << "\nMerged Master Patient Record:\n";
+            for (int i = 0; i < mergedSize; i++)
+                cout << formatID(merged[i]) << endl;
+        }
+
+    } while (option != 0);
+
+    return 0;
+}
