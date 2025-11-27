@@ -203,3 +203,126 @@ int main() {
         cout<<schedule[i]<<" ";
 }
 
+2.
+
+a. #include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Activity {
+    char id;
+    int s;
+    int e;
+};
+
+bool overlap(Activity a, Activity b) {
+    return !(a.e <= b.s || b.e <= a.s);
+}
+
+int main() {
+    Activity A[10] = {
+        {'a',9,10},
+        {'b',9,11},
+        {'c',9,10},
+        {'d',10,11},
+        {'e',11,13},
+        {'f',13,14},
+        {'g',13,14},
+        {'h',14,15},
+        {'i',15,16},
+        {'j',14,16}
+    };
+
+    sort(A, A+10, [](Activity x, Activity y){
+        return x.s < y.s;
+    });
+
+    char room[4][10];
+    int count[4] = {0};
+
+    for(int i=0;i<10;i++){
+        for(int r=0;r<4;r++){
+            bool ok = true;
+            for(int j=0;j<count[r];j++){
+                for(int k=0;k<10;k++){
+                    if(room[r][j] == A[k].id && overlap(A[i], A[k]))
+                        ok = false;
+                }
+            }
+            if(ok){
+                room[r][count[r]++] = A[i].id;
+                break;
+            }
+        }
+    }
+
+    cout<<"Earliest Start Time Schedule:\n";
+    for(int r=0;r<4;r++){
+        cout<<"Classroom "<<r+1<<": ";
+        for(int j=0;j<count[r];j++)
+            cout<<room[r][j]<<" ";
+        cout<<"\n";
+    }
+}
+
+
+b.
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Activity {
+    char id;
+    int s;
+    int e;
+};
+
+bool overlap(Activity a, Activity b) {
+    return !(a.e <= b.s || b.e <= a.s);
+}
+
+int main() {
+    Activity A[10] = {
+        {'a',9,10},
+        {'b',9,11},
+        {'c',9,10},
+        {'d',10,11},
+        {'e',11,13},
+        {'f',13,14},
+        {'g',13,14},
+        {'h',14,15},
+        {'i',15,16},
+        {'j',14,16}
+    };
+
+    sort(A, A+10, [](Activity x, Activity y){
+        return x.e < y.e;
+    });
+
+    char room[4][10];
+    int count[4] = {0};
+
+    for(int i=0;i<10;i++){
+        for(int r=0;r<4;r++){
+            bool ok = true;
+            for(int j=0;j<count[r];j++){
+                for(int k=0;k<10;k++){
+                    if(room[r][j] == A[k].id && overlap(A[i], A[k]))
+                        ok = false;
+                }
+            }
+            if(ok){
+                room[r][count[r]++] = A[i].id;
+                break;
+            }
+        }
+    }
+
+    cout<<"Earliest Finish Time Schedule:\n";
+    for(int r=0;r<4;r++){
+        cout<<"Classroom "<<r+1<<": ";
+        for(int j=0;j<count[r];j++)
+            cout<<room[r][j]<<" ";
+        cout<<"\n";
+    }
+}
