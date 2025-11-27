@@ -1,0 +1,205 @@
+ Assume that you have a classroom (only 1 classroom) and you have several
+requests from lecturers to use the classroom (Lecture 7, Slide No 8). Apply the
+interval scheduling problem to schedule as many requests as possible to optimise
+the usage of the classroom. Implement your solution using:
+a. Shortest interval; and
+b. Fewest conflicts
+
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Activity {
+    char id;
+    int s;
+    int e;
+    int length;
+    int conflict;
+};
+
+bool overlap(Activity a, Activity b) {
+    return !(a.e <= b.s || b.e <= a.s);
+}
+
+int main() {
+    vector<Activity> A = {
+        {'a',0,6},
+        {'b',1,4},
+        {'c',3,5},
+        {'d',4,7},
+        {'e',5,8},
+        {'f',6,9},
+        {'g',7,10},
+        {'h',8,11}
+    };
+
+    for(auto &x : A) x.length = x.e - x.s;
+
+    vector<Activity> B = A;
+    sort(B.begin(), B.end(), [](Activity x, Activity y){
+        return x.length < y.length;
+    });
+
+    vector<char> shortest;
+    for(auto &x : B){
+        bool ok = true;
+        for(auto &c : shortest){
+            for(auto &y : A){
+                if(y.id == c && overlap(x,y)) ok = false;
+            }
+        }
+        if(ok) shortest.push_back(x.id);
+    }
+
+    for(auto &x : A){
+        x.conflict = 0;
+        for(auto &y : A){
+            if(x.id != y.id && overlap(x,y)) x.conflict++;
+        }
+    }
+
+    vector<Activity> C = A;
+    sort(C.begin(), C.end(), [](Activity x, Activity y){
+        return x.conflict < y.conflict;
+    });
+
+    vector<char> fewest;
+    for(auto &x : C){
+        bool ok = true;
+        for(auto &c : fewest){
+            for(auto &y : A){
+                if(y.id == c && overlap(x,y)) ok = false;
+            }
+        }
+        if(ok) fewest.push_back(x.id);
+    }
+
+    cout<<"Shortest Interval: ";
+    for(char c : shortest) cout<<c<<" ";
+    cout<<"\nFewest Conflicts: ";
+    for(char c : fewest) cout<<c<<" ";
+}
+
+a)
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Activity {
+    char id;
+    int s;
+    int e;
+    int length;
+};
+
+bool overlap(Activity a, Activity b) {
+    return !(a.e <= b.s || b.e <= a.s);
+}
+
+int main() {
+    Activity A[8] = {
+        {'a',0,6},
+        {'b',1,4},
+        {'c',3,5},
+        {'d',4,7},
+        {'e',5,8},
+        {'f',6,9},
+        {'g',7,10},
+        {'h',8,11}
+    };
+
+    for(int i=0;i<8;i++)
+        A[i].length = A[i].e - A[i].s;
+
+    sort(A, A+8, [](Activity x, Activity y){
+        return x.length < y.length;
+    });
+
+    char schedule[8];
+    int count = 0;
+
+    for(int i=0;i<8;i++){
+        bool ok = true;
+        for(int j=0;j<count;j++){
+            for(int k=0;k<8;k++){
+                if(A[k].id == schedule[j] && overlap(A[i], A[k]))
+                    ok = false;
+            }
+        }
+        if(ok){
+            schedule[count] = A[i].id;
+            count++;
+        }
+    }
+
+    cout<<"Shortest Interval Schedule: ";
+    for(int i=0;i<count;i++)
+        cout<<schedule[i]<<" ";
+}
+
+b.
+
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct Activity {
+    char id;
+    int s;
+    int e;
+    int conflict;
+};
+
+bool overlap(Activity a, Activity b) {
+    return !(a.e <= b.s || b.e <= a.s);
+}
+
+int main() {
+    Activity A[8] = {
+        {'a',0,6},
+        {'b',1,4},
+        {'c',3,5},
+        {'d',4,7},
+        {'e',5,8},
+        {'f',6,9},
+        {'g',7,10},
+        {'h',8,11}
+    };
+
+    for(int i=0;i<8;i++){
+        A[i].conflict = 0;
+        for(int j=0;j<8;j++){
+            if(i!=j && overlap(A[i], A[j]))
+                A[i].conflict++;
+        }
+    }
+
+    sort(A, A+8, [](Activity x, Activity y){
+        return x.conflict < y.conflict;
+    });
+
+    char schedule[8];
+    int count = 0;
+
+    for(int i=0;i<8;i++){
+        bool ok = true;
+        for(int j=0;j<count;j++){
+            for(int k=0;k<8;k++){
+                if(A[k].id == schedule[j] && overlap(A[i], A[k]))
+                    ok = false;
+            }
+        }
+        if(ok){
+            schedule[count] = A[i].id;
+            count++;
+        }
+    }
+
+    cout<<"Fewest Conflicts Schedule: ";
+    for(int i=0;i<count;i++)
+        cout<<schedule[i]<<" ";
+}
+
