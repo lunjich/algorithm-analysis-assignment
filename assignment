@@ -149,7 +149,9 @@ int main() {
             long long time1 =
                 chrono::duration_cast<chrono::nanoseconds>(end1 - start1).count();
 
-            cout << "Radiology sorted in " << time1 << " nanoseconds.\n";
+            cout << "\nSorted Radiology IDs:\n";
+            for (int i = 0; i < r1; i++)
+                cout << formatID(radiology[i]) << endl;
 
             cout << "\nSorting Pharmacy...\n";
             auto start2 = chrono::high_resolution_clock::now();
@@ -158,15 +160,13 @@ int main() {
             long long time2 =
                 chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count();
 
-            cout << "Pharmacy sorted in " << time2 << " nanoseconds.\n";
-
-            cout << "\nSorted Radiology IDs:\n";
-            for (int i = 0; i < r1; i++)
-                cout << formatID(radiology[i]) << endl;
-
             cout << "\nSorted Pharmacy IDs:\n";
             for (int i = 0; i < r2; i++)
                 cout << formatID(pharmacy[i]) << endl;
+
+            cout << "\n=== SORTING TIME SUMMARY ===\n";
+            cout << "Radiology sorted in " << time1 << " nanoseconds.\n";
+            cout << "Pharmacy sorted in " << time2 << " nanoseconds.\n";
         }
 
         if (option == 4) {
